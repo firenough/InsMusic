@@ -108,7 +108,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
               onChange={(val) => onSearchSourceChange(val as any)}
               options={[
                 { value: 'aggregate', label: '聚合' },
-                { value: 'netease', label: '网易' },
+                { value: 'netease', label: '网易云' },
                 { value: 'kuwo', label: '酷我' },
                 { value: 'qq', label: 'QQ' },
               ]}
@@ -130,8 +130,8 @@ export const SearchView: React.FC<SearchViewProps> = ({
             onChange={(val) => onSearchSourceChange(val as any)}
             options={[
               { value: 'aggregate', label: '聚合搜索' },
-              { value: 'netease', label: '网易云' },
-              { value: 'kuwo', label: '酷我' },
+              { value: 'netease', label: '网易云音乐' },
+              { value: 'kuwo', label: '酷我音乐' },
               { value: 'qq', label: 'QQ音乐' },
             ]}
             className="w-40"

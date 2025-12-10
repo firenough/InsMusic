@@ -19,7 +19,7 @@ export const CoverImage = React.forwardRef<HTMLImageElement, CoverImageProps>(
 
     if (!src || hasError) {
       return (
-        <div 
+        <div
           className={clsx("flex items-center justify-center bg-gray-800 text-gray-600 overflow-hidden", className)}
           role="img"
           aria-label={alt}
@@ -35,6 +35,7 @@ export const CoverImage = React.forwardRef<HTMLImageElement, CoverImageProps>(
         src={src}
         alt={alt}
         className={className}
+        loading="lazy"
         onError={() => setHasError(true)}
         {...props}
       />

@@ -185,7 +185,7 @@ function App() {
   const [activeLyricIndex, setActiveLyricIndex] = useState<number>(-1);
   const [lyricsLoading, setLyricsLoading] = useState(false);
   const [quality, setQuality] = useLocalStorage<Quality>('inspire-quality', '320k');
-  const [volume, setVolume] = useState(0.8);
+  const [volume, setVolume] = useLocalStorage<number>('inspire-volume', 0.8);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -196,6 +196,7 @@ function App() {
   const [playlists, setPlaylists] = useLocalStorage<LocalPlaylist[]>('inspire-playlists', []);
   const [queue, setQueue] = useLocalStorage<Song[]>('inspire-queue', []);
   const [queueIndex, setQueueIndex] = useLocalStorage<number>('inspire-queue-index', -1);
+  const [savedProgress, setSavedProgress] = useLocalStorage<number>('inspire-progress', 0);
 
 
 
@@ -325,25 +326,42 @@ function App() {
     queueIndexRef.current = queueIndex;
   }, [queueIndex]);
 
+  // Ref for resume progress handling
+  const hasRestoredProgressRef = useRef(false);
+  const currentSongIdRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!currentSong || !audioRef.current) return;
     const audio = audioRef.current;
     const src = buildFileUrl(currentSong.platform, currentSong.id, 'url', quality);
+
+    // Detect if this is a different song
+    const songId = `${currentSong.platform}-${currentSong.id}`;
+    const isSameSong = currentSongIdRef.current === songId;
+    currentSongIdRef.current = songId;
+
     audio.src = src;
+
+    // Restore progress when same song loads (page refresh scenario)
+    const handleCanPlay = () => {
+      if (!hasRestoredProgressRef.current && savedProgress > 0 && isSameSong) {
+        audio.currentTime = savedProgress;
+        setProgress(savedProgress);
+        hasRestoredProgressRef.current = true;
+      }
+    };
+
+    audio.addEventListener('canplay', handleCanPlay, { once: true });
 
     if (shouldAutoPlayRef.current) {
       audio.play().catch(() => setIsPlaying(false));
-    } else {
-      // If we shouldn't auto-play, we still want to set the flag to true for future interactions
-      // But only if this was the initial load? No.
-      // If the user clicks play manually, startPlayback/playSong should set this ref to true.
-      // If we are here and ref is false, it means we just restored state.
-      // We should NOT play, and we should allow next interactions (which will set ref to true) to play.
-      // So effectively we just don't call play().
     }
 
     loadSongDetails(currentSong);
-    loadSongDetails(currentSong);
+
+    return () => {
+      audio.removeEventListener('canplay', handleCanPlay);
+    };
   }, [currentSong, quality]);
 
   // --- Sleep Timer Logic ---
@@ -355,13 +373,32 @@ function App() {
         setIsPlaying(false);
         if (audioRef.current) audioRef.current.pause();
         setSleepEndTime(null);
-        addToast('info', '定时停止播放已生效');
+        addToast('info', '定时关闭已生效');
       }
     };
 
     const interval = setInterval(checkTimer, 1000);
     return () => clearInterval(interval);
   }, [sleepEndTime]);
+
+  // --- Progress Save Logic (save every 5 seconds while playing) ---
+  useEffect(() => {
+    if (!isPlaying || !currentSong) return;
+
+    const saveInterval = setInterval(() => {
+      if (audioRef.current && audioRef.current.currentTime > 0) {
+        setSavedProgress(Math.floor(audioRef.current.currentTime));
+      }
+    }, 5000);
+
+    // Save immediately on pause
+    return () => {
+      if (audioRef.current && audioRef.current.currentTime > 0) {
+        setSavedProgress(Math.floor(audioRef.current.currentTime));
+      }
+      clearInterval(saveInterval);
+    };
+  }, [isPlaying, currentSong]);
 
   // --- Lyrics Logic ---
 
@@ -636,6 +673,43 @@ function App() {
     onSeek: handleSeek,
   });
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
+      switch (e.code) {
+        case 'Space':
+          e.preventDefault();
+          togglePlayPause();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          handleSeek(Math.max(0, progress - 5));
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          handleSeek(Math.min(duration, progress + 5));
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setVolume(Math.min(1, volume + 0.1));
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          setVolume(Math.max(0, volume - 0.1));
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [progress, duration, volume, isPlaying]);
+
   return (
     <Layout
       sidebar={
@@ -773,8 +847,8 @@ function App() {
                   value={toplistSource}
                   onChange={(val) => setToplistSource(val as Platform)}
                   options={[
-                    { value: 'netease', label: '网易云' },
-                    { value: 'kuwo', label: '酷我' },
+                    { value: 'netease', label: '网易云音乐' },
+                    { value: 'kuwo', label: '酷我音乐' },
                     { value: 'qq', label: 'QQ音乐' },
                   ]}
                   className="w-32"
