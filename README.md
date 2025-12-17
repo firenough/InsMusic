@@ -1,16 +1,25 @@
 # InspireMusic
 
-一个现代化的纯前端音乐播放器，提供使用 Tauri 打包的桌面端。
+[在线体验](https://ins-music.netlify.app/) | [下载Windows桌面端](https://github.com/WHStudio/InspireMusic/releases/download/v1.3.3/InspireMusic_1.3.3_x64-setup.exe)
 
-后端基于 [TuneHub API](https://api.tunefree.fun/) ，请支持官方项目 [TuneFreeNext](https://tunefree.fun/) 。
+一个现代化的纯前端音乐播放器，可以在 CloudFlare Pages / Netlify / Vercel 上轻松部署，同时提供使用 Tauri 打包的桌面端。
+
+后端基于 [TuneHub API](https://api.tunefree.fun/) ，请多多支持后端项目原作者开发的 [TuneFreeNext](https://tunefree.fun/) 。
 
 ## ⚠️ 免责声明
 
 本项目由目前最先进的多款 AI Agent 联合开发，99.9%以上代码由 AI 生成。
 
-虽然经过多轮迭代和代码审查，且完全开源，但不为可靠性提供任何保证。
+虽然经过多轮迭代和代码审查，且完全开源，但无法为可靠性提供任何保证。
 
-我们承诺，不存储版权资源，也不提供下载功能。
+我们承诺：不存储版权资源、不提供下载功能、严禁商用。
+
+**已知问题**：
+
+ 1. 受限于浏览器安全策略，部分后端资源无法在 https 生产环境中加载，但使用桌面端不受影响；
+ 2. 我们暂未提供 Linux 或 Mac OS 的打包，但您可以使用 Tauri 自行打包和体验；
+ 3. 本项目没有在非 Chrome 内核的浏览器上进行测试，不保证完全正常的显示效果；
+ 4. Windows 桌面端需要 Webview2 支持，在 Windows 10（从版本 1803 开始）和更高版本的 Windows 上默认提供。
 
 ## ✨ 功能特性
 
