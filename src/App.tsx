@@ -9,6 +9,8 @@ import {
   searchSongs,
 } from './api';
 import { useAppStore } from './store/useAppStore';
+import { useAuthStore } from './store/authStore';
+import { AuthModal } from './components/AuthModal';
 import { useMediaSession } from './hooks/useMediaSession';
 import { useTrayTitle } from './hooks/useTrayTitle';
 import type {
@@ -69,6 +71,9 @@ function App() {
   const [renamePlaylistName, setRenamePlaylistName] = useState('');
   const [isAddToPlaylistModalOpen, setIsAddToPlaylistModalOpen] = useState(false);
   const [songToAddToPlaylist, setSongToAddToPlaylist] = useState<Song | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { user, token } = useAuthStore();
+  const lastRecordedSongIdRef = useRef<string | null>(null);
 
   const addToast = (type: ToastMessage['type'], message: string) => {
     const id = Date.now().toString();
@@ -415,6 +420,27 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentional: setSavedProgress is stable from useLocalStorage
   }, [isPlaying, currentSong]);
 
+  // --- History Recording Logic ---
+  useEffect(() => {
+    if (isPlaying && currentSong && user && token) {
+      const songId = `${currentSong.platform}-${currentSong.id}`;
+      // Prevent duplicate recording for the same song session unless it changed
+      if (lastRecordedSongIdRef.current !== songId) {
+        lastRecordedSongIdRef.current = songId;
+
+        // Record history
+        fetch('/api/user/history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(currentSong)
+        }).catch(console.error);
+      }
+    }
+  }, [isPlaying, currentSong, user, token]);
+
   // --- Lyrics Logic ---
 
   // Use a ref to store parsed lyrics for immediate access
@@ -742,6 +768,8 @@ function App() {
           }}
           onCreatePlaylist={createPlaylist}
           onDeletePlaylist={deletePlaylist}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
+          user={user}
         />
       }
       bottomNav={
@@ -1181,6 +1209,7 @@ function App() {
       >
         <p className="text-gray-300">确定要删除这个歌单吗？此操作无法撤销。</p>
       </Modal>
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </Layout>
   );
 }

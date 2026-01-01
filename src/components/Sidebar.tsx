@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, User } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { LocalPlaylist } from '../types';
 import { CoverImage } from './ui/CoverImage';
@@ -14,6 +14,8 @@ interface SidebarProps {
   onPlaylistSelect: (id: string) => void;
   onCreatePlaylist: () => void;
   onDeletePlaylist: (id: string) => void;
+  onOpenAuth: () => void;
+  user: { email: string } | null;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -22,6 +24,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   playlists,
   activePlaylistId,
   onPlaylistSelect,
+  onOpenAuth,
+  user,
 }) => {
   return (
     <div className="w-64 bg-black h-full flex flex-col p-4 gap-6 text-gray-400">
@@ -77,6 +81,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           ))}
         </div>
+      </div>
+      <div className="mt-auto pt-4 border-t border-zinc-800">
+        <button
+          onClick={onOpenAuth}
+          className="flex items-center gap-3 px-4 py-2 w-full hover:text-white hover:bg-surface/50 rounded-md transition-colors"
+        >
+          <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
+            <User size={16} />
+          </div>
+          <div className="flex-1 text-left truncate">
+            {user ? user.email : 'Login / Register'}
+          </div>
+        </button>
       </div>
     </div>
   );

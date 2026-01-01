@@ -64,6 +64,56 @@
 - **离线支持** - Service Worker 缓存静态资源
 - **媒体会话** - 在系统通知中心显示当前播放歌曲，支持控制播放
 
+## ☁️ 部署 (Cloudflare Pages)
+
+本项目已针对 Cloudflare Pages 进行了深度优化，支持边缘计算功能（User Management / History / Admin）。
+
+### 1. 准备工作
+- Cloudflare 账号
+- Node.js 环境
+
+### 2. KV 存储配置
+在 Cloudflare Dashboard 中创建两个 KV Namespace：
+- `inspire-users`
+- `inspire-history`
+
+或者使用 Wrangler CLI：
+```bash
+npx wrangler kv:namespace create USERS_KV
+npx wrangler kv:namespace create HISTORY_KV
+```
+
+### 3. 项目配置
+修改 `wrangler.toml` 文件，填入你的 KV ID：
+
+```toml
+[[kv_namespaces]]
+binding = "USERS_KV"
+id = "<YOUR_USERS_KV_ID>"
+
+[[kv_namespaces]]
+binding = "HISTORY_KV"
+id = "<YOUR_HISTORY_KV_ID>"
+
+[vars]
+ADMIN_PASSWORD = "your_secure_password" # 用于管理后台 API
+```
+
+### 4. 部署
+```bash
+pnpm install
+npx wrangler pages deploy .
+```
+
+## 🔐 核心功能增强 (Cloudflare KV)
+
+部署到 Cloudflare 后，将自动启用以下功能：
+
+- **👤 用户系统** - 注册/登录，数据存储在 KV
+- **📜 播放记录** - 自动云端同步播放历史
+- **🛡️ 管理接口** - 提供 RESTful API 管理用户数据
+
+
 ## 🚀 开发环境
 
 - Node.js v24.12.0
