@@ -3,15 +3,15 @@ compatibility_date = "2024-04-01"
 pages_build_output_dir = "dist"
 
 [vars]
-ADMIN_PASSWORD = "change_this_to_a_secure_password"
+ADMIN_PASSWORD = "Tian@19980919"
 
 
 # Bindings for KV Namespaces
 # You will need to create these namespaces in your Cloudflare dashboard and update the IDs.
 [[kv_namespaces]]
 binding = "USERS_KV"
-id = "YOUR_USERS_KV_ID"
+id = "5268cfd8a4184b85b0e9af1be20b93c7"
 
 [[kv_namespaces]]
 binding = "HISTORY_KV"
-id = "YOUR_HISTORY_KV_ID"
+id = "b7e5b4311285426dab86e0e23b72c329"
