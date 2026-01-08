@@ -1,4 +1,4 @@
-name = "inspire-music"
+name = "music01"
 compatibility_date = "2024-04-01"
 pages_build_output_dir = "dist"
 
@@ -10,8 +10,8 @@ ADMIN_PASSWORD = "Tian@19980919"
 # You will need to create these namespaces in your Cloudflare dashboard and update the IDs.
 [[kv_namespaces]]
 binding = "USERS_KV"
-id = "5268cfd8a4184b85b0e9af1be20b93c7"
+id = "fd57e1278c0446e6a82856148835cc86"
 
 [[kv_namespaces]]
 binding = "HISTORY_KV"
-id = "b7e5b4311285426dab86e0e23b72c329"
+id = "7d3998958d064ad08832f44ea4ee34aa"
